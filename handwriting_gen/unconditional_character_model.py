@@ -2,6 +2,14 @@
 Recreate character generation even though dataset is super small.
 Then we can use the same network
 for handwritten generation with the added mixture density network
+
+To decode sample rollouts:
+
+m = CharacterGenModel.load(
+    '../models/unconditional-character-model/', rnn_steps=1,
+    batch_size=1)
+decode(m)
+
 """
 import click
 import numpy as np
@@ -15,7 +23,7 @@ from handwriting_gen.networks import stacked_lstm_model, get_embedding, TFModel
 class CharacterGenModel(TFModel):
 
     def __init__(self, save_path, batch_size, rnn_steps, vocab_size,
-                 num_layers, hidden_size, max_grad_norm=5, **kwargs):
+                 num_layers, hidden_size, char_dict, max_grad_norm=5, **kwargs):
         """
         """
         super().__init__(save_path)
@@ -27,6 +35,7 @@ class CharacterGenModel(TFModel):
         self.num_layers = num_layers
         self.hidden_size = hidden_size
         self.max_grad_norm = max_grad_norm
+        self.char_dict = char_dict
 
         self.build()
         self.sess.run(tf.global_variables_initializer())
@@ -89,8 +98,8 @@ class CharacterGenModel(TFModel):
             {self.inputs: inputs, self.targets: targets})
 
 
-def decode(model, metadata, steps=100, seed=42):
-    d = {v: k for k, v in metadata['char_dict'].items()}
+def decode(model, steps=100, seed=42):
+    d = {v: k for k, v in model.char_dict.items()}
 
     chars = []
     feed_dict = {}
@@ -137,7 +146,7 @@ def train(model_folder, learning_rate, num_epochs,
 
     model = CharacterGenModel(
         model_folder, batch_size, num_steps, vocab_size,
-        num_layers, hidden_size)
+        num_layers, hidden_size, char_dict=metadata['char_dict'])
 
     for i in range(num_epochs):
         learning_rate *= 1 / (1. + lr_decay * i)
