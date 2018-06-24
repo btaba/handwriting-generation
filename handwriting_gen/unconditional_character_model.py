@@ -132,7 +132,7 @@ def train(model_folder, learning_rate, num_epochs,
     train_data_gen = character_batch_generator(
         train_data, batch_size=batch_size)
 
-    vocab_size = len(metadata['char_set'])
+    vocab_size = len(metadata['char_dict'])
     epoch_size = len(train_data[0]) // batch_size
 
     model = CharacterGenModel(

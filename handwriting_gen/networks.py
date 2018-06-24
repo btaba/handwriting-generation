@@ -95,9 +95,16 @@ class TFModel:
 
     @classmethod
     def load(cls, save_path, **kwargs):
+        tf.reset_default_graph()
+
         with open(os.path.join(save_path, 'ser.pkl'), 'rb') as f:
             params = pickle.load(f)
+
         params.update(kwargs)
+        params['save_path'] = save_path
+
+        print('Loading: ', params)
+
         self = cls(**params)
         self.saver.restore(
             self.sess, tf.train.latest_checkpoint(self.save_path))

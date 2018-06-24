@@ -108,53 +108,95 @@ def build_stroke_mixture_model(model, output, targets, mixture_components,
         global_step=tf.train.get_or_create_global_step())
 
 
-# def rollout_conditional_model(inputs, text_input, cells, initial_states,
-#                               char_seq_len, num_layers,
-#                               batch_size, window_components, vocab_size,
-#                               _train, dropout, hidden_size):
-#     """
-#     Rollout conditional stroke generation model
-#     """
+def get_window_parameters(inputs, output_dim):
+    """
+    Get alpha, beta, kappa parameters for windowing mixture model
+    """
+
+    # the pen moves to the right on every stroke so
+    # initialize the bias for kappa
+    # to around np.log(x) where x is the distance per timestep
+    window_bias_init = tf.truncated_normal_initializer(
+        mean=-2, stddev=0.25, seed=None, dtype=tf.float32)
+
+    char_mixture_components = tf.layers.dense(
+        inputs, output_dim,
+        activation=None,
+        bias_initializer=window_bias_init)
+
+    char_mixture_components = tf.expand_dims(
+        tf.exp(char_mixture_components), -1)
+
+    alpha, beta, kappa = tf.split(
+        char_mixture_components, 3, axis=1)
+
+    return alpha, beta, kappa
 
 
-#     states = initial_states
+def build_window_mixture_model(model, initial_states, cells, inputs,
+                               batch_size,
+                               window_components, character_inputs,
+                               char_seq_len):
+    """
+    Append window mixture model to model
+    """
+    assert len(cells) == 3, "Expecting 3 layer LSTM"
+    assert len(initial_states) == 3, "Expecting 3 layer LSTM"
 
-#     last_outputs = []
-#     u = np.array([i for i in range(1, char_seq_len + 1)], dtype=np.float32)
+    state_0, state_1, state_2 = initial_states
 
-#     last_kappa = init_kappa = tf.zeros(
-#         dtype=tf.float32, shape=[batch_size, window_components, 1])
-#     init_wt = tf.zeros(
-#         dtype=tf.float32, shape=[batch_size, vocab_size])
-#     last_wt = init_wt
+    # output dim for alpha, beta, kappa components
+    window_output_dim = window_components * 3
 
-#     with tf.variable_scope('condition-rollout', tf.AUTO_REUSE):
-#         for idx, i in enumerate(inputs):
-#             # unroll the network to get outputs
-#             out_cell_0, states[0] = cells[0](
-#                 tf.concat([i, last_wt], axis=1), states[0])
+    model.init_kappa = tf.zeros(
+        dtype=tf.float32,
+        shape=[model.batch_size, model.window_components, 1])
+    last_kappa = model.init_kappa
 
-#             # character mixture model
-#             char_mixture_components = tf.layers.dense(
-#                 out_cell_0, window_components*3, activation=None)
-#             alpha, beta, kappa = tf.split(char_mixture_components, 3, axis=1)
-#             alpha = tf.expand_dims(tf.exp(alpha), -1)
-#             beta = tf.expand_dims(tf.exp(beta), -1)
-#             kappa = last_kappa + tf.expand_dims(tf.exp(kappa), -1)
-#             last_kappa = kappa
+    # init the window with first one-hot vector for first character
+    #   this only matters if you feed last_wt into the first LSTM layer
+    model.init_wt = last_wt = character_inputs[:, 0, :]
 
-#             # character mixture weights
-#             phi = alpha * tf.exp(
-#                 -beta * tf.square(kappa - u))
-#             phi = tf.reduce_sum(phi, axis=1, keepdims=True)
+    u = np.array([i for i in range(1, model.char_seq_len + 1)],
+                 dtype=np.float32)
 
-#             w_t = tf.squeeze(tf.matmul(phi, text_input), axis=1)
+    last_outputs = []
+    for i in inputs:
 
-#             # remaining layers with skip connections
-#             out_cell_1, states[1] = cells[1](
-#                 tf.concat([i, out_cell_0, w_t], axis=1), states[1])
+        # # last_wt is fed to next input in the paper, but had trouble
+        # # making it produce decent results
+        # out_cell_0, state_0 = cells[0](
+        #     tf.concat([i, last_wt], axis=1), state_0)
+        out_cell_0, state_0 = cells[0](i, state_0)
 
-#             out_cell_2, states[2] = cells[2](
-#                 tf.concat([i, out_cell_0, out_cell_1, w_t], axis=1), states[2])
+        with tf.variable_scope('window', tf.AUTO_REUSE):
 
-#             last_outputs.append(out_cell_2)
+            alpha, beta, kappa = get_window_parameters(
+                out_cell_0, window_output_dim)
+
+            kappa = last_kappa + kappa
+            last_kappa = kappa
+
+            # character mixture weights
+            phi = alpha * tf.exp(
+                -beta * tf.square(kappa - u))
+            phi = tf.reduce_sum(phi, axis=1, keepdims=True)
+            model.phi = phi
+
+            w_t = tf.squeeze(tf.matmul(phi, character_inputs), axis=1)
+
+        # remaining 2 layers with skip connections
+        out_cell_1, state_1 = cells[1](
+            tf.concat([i, out_cell_0, w_t], axis=1), state_1)
+
+        out_cell_2, state_2 = cells[2](
+            tf.concat([i, out_cell_1, w_t], axis=1),
+            # tf.concat([i, out_cell_0, out_cell_1, w_t], axis=1),
+            state_2)
+        last_outputs.append(out_cell_2)
+        last_wt = w_t
+
+    model.last_wt = last_wt
+    model.last_kappa = last_kappa
+    model.last_states = [state_0, state_1, state_2]
+    return last_outputs

@@ -6,6 +6,7 @@ and we don't add skip connections for simplicity.
 
 [1] https://arxiv.org/pdf/1308.0850.pdf
 """
+import os
 import click
 import numpy as np
 import tensorflow as tf
@@ -46,7 +47,8 @@ class UnconditionalStrokeModel(TFModel):
 
         paper defaults to 3 layer LSTM with 400 hidden units
         output derivatives were clipped to -100, 100 and lstm derivs to -10, 10
-        in the paper, but we'll just do +/-5 for everything for now
+        but we'll just do 200 hidden units and +/-5 clippingfor now. we also
+        don't implement the skip connections for convenience.
         """
         super().__init__(save_path)
 
@@ -183,16 +185,15 @@ def train(model_folder, num_epochs, learning_rate, batch_size,
             model.save()
 
         if not epoch % save_every and epoch != 0:
-            import os
-            tf.reset_default_graph()
+            # make some stroke plots
             model = UnconditionalStrokeModel.load(
                 model_folder, batch_size=1,
                 rnn_steps=1, is_train=False)
-            strokes = decode(model, 650, epoch)
 
+            strokes = decode(model, 650, epoch)
             plotting.plot_stroke(
                 strokes, os.path.join(model_folder, 'test{}'.format(epoch)))
-            tf.reset_default_graph()
+
             model = UnconditionalStrokeModel.load(
                 model_folder, learning_rate=learning_rate,
                 batch_size=batch_size, rnn_steps=stroke_length)

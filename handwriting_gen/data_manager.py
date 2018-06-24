@@ -94,7 +94,7 @@ def _preprocess_raw(sentences, strokes, sentences_to_int):
         metadata['char_dict'] = char_dict
 
     metadata['char_set'] = char_set
-    metadata['vocab_size'] = len(char_set)
+    metadata['vocab_size'] = len(char_dict)
 
     return (sentences_tok, strokes), metadata
 
