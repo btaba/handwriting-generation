@@ -1,8 +1,5 @@
 FROM tensorflow/tensorflow:1.8.0-py3
 
-# RUN apt update &&\
-#    apt install --yes libsm6 libxext6 libfontconfig1 libxrender1 python3-tk  python-setuptools libffi-dev cmake zlib1g-dev libjpeg-dev xvfb libav-tools xorg-dev python-opengl libboost-all-dev libsdl2-dev swig git
-
 ADD requirements.txt .
 RUN pip3 install -r requirements.txt
 

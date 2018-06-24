@@ -137,9 +137,9 @@ def decode(model, text='hey I am baruch, nice to meet you',
         [model.initial_states, model.init_kappa, model.init_wt],
         feed_dict)
 
-    idx = 0
-    while idx < 700:
-        idx += 1
+    timestep = 0
+    while timestep < 700:
+        timestep += 1
 
         feed_dict[model.inputs] = strokes[-1]
         for idx, i in enumerate(model.initial_states):

@@ -3,7 +3,7 @@
 Based on [Generating Sequences With Recurrent Neural Networks](https://arxiv.org/pdf/1308.0850.pdf).
 
 
-## How to run?
+## How do I run it?
 
 To run the jupyter notebook in Docker:
 
@@ -33,6 +33,26 @@ The results can be run in a jupyter notebook using `./run_docker.sh` or `./run_l
 
 #### Conditionally Generated Samples
 
+`baruch tabanpour`
+
+
+|   |
+|---|
+| ![baruch tabanpour](./assets/conditional_stroke2v1.png)  |
+| ![baruch tabanpour](./assets/conditional_stroke2v2.png)  |
+
+
+
+`the world cup`
+
+
+|   |
+|---|
+| ![the world cup](./assets/conditional-stroke4v1.png)  |
+| ![the world cup](./assets/conditional-stroke4v2.png)  |
+
+
+
 `welcome to my house`
 
 
@@ -43,15 +63,6 @@ The results can be run in a jupyter notebook using `./run_docker.sh` or `./run_l
 
 
 
-`baruch tabanpour`
-
-
-|   |
-|---|
-| [![baruch tabanpour](./assets/conditional_stroke2v1.png)  |
-| [![baruch tabanpour](./assets/conditional_stroke2v2.png)  |
-
-
 `welcome to canada`
 
 
@@ -60,14 +71,6 @@ The results can be run in a jupyter notebook using `./run_docker.sh` or `./run_l
 | ![welcome to canada](./assets/conditional-stroke3v1.png)  |
 | ![welcome to canada](./assets/conditional-stroke3v2.png)  |
 
-
-`the world cup`
-
-
-|   |
-|---|
-| ![the world cup](./assets/conditional-stroke4v1.png)  |
-| ![the world cup](./assets/conditional-stroke4v2.png)  |
 
 
 ## Training
