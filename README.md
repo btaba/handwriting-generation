@@ -5,13 +5,13 @@ Based on [Generating Sequences With Recurrent Neural Networks](https://arxiv.org
 
 ## How do I run it?
 
-To run the jupyter notebook in Docker:
+Run the jupyter notebook in Docker:
 
 * `source run_docker.sh`
-* Follow the link so that you can run `notebooks/results.ipynb` to generate some samples!
+* Follow the link in the terminal to run `notebooks/results.ipynb` to generate some samples!
 
 
-To run locally:
+Or run it locally:
 
 * `source run_local.sh`
 
@@ -75,7 +75,7 @@ The results can be run in a jupyter notebook using `./run_docker.sh` or `./run_l
 
 ## Training
 
-Set these env vars to your data and model directories:
+Set these env vars to point to your data and model directories:
 
 * `HANDWRITING_GENERATION_DATA_DIR`
 * `HANDWRITING_GENERATION_MODEL_DIR`

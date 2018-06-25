@@ -122,7 +122,6 @@ def decode(model, text='hey I am baruch, nice to meet you',
     """
     Decode strokes from network conditional on text input
     """
-    # TODO: make sure we keep the same ratio of steps to chars as before
 
     np.random.seed(seed)
 
