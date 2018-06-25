@@ -33,7 +33,7 @@ The results can be run in a jupyter notebook using `./run_docker.sh` or `./run_l
 
 #### Conditionally Generated Samples
 
-`baruch tabanpour`
+`Baruch Tabanpour was here `
 
 
 |   |
@@ -43,7 +43,7 @@ The results can be run in a jupyter notebook using `./run_docker.sh` or `./run_l
 
 
 
-`the world cup`
+`france will win the world cup`
 
 
 |   |

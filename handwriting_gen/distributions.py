@@ -163,11 +163,9 @@ def build_window_mixture_model(model, initial_states, cells, inputs,
     last_outputs = []
     for i in inputs:
 
-        # # last_wt is fed to next input in the paper, but had trouble
-        # # making it produce decent results
-        # out_cell_0, state_0 = cells[0](
-        #     tf.concat([i, last_wt], axis=1), state_0)
-        out_cell_0, state_0 = cells[0](i, state_0)
+        out_cell_0, state_0 = cells[0](
+            tf.concat([i, last_wt], axis=1), state_0)
+        # out_cell_0, state_0 = cells[0](i, state_0)
 
         with tf.variable_scope('window', tf.AUTO_REUSE):
 
@@ -190,8 +188,8 @@ def build_window_mixture_model(model, initial_states, cells, inputs,
             tf.concat([i, out_cell_0, w_t], axis=1), state_1)
 
         out_cell_2, state_2 = cells[2](
-            tf.concat([i, out_cell_1, w_t], axis=1),
-            # tf.concat([i, out_cell_0, out_cell_1, w_t], axis=1),
+            # tf.concat([i, out_cell_1, w_t], axis=1),
+            tf.concat([i, out_cell_0, out_cell_1, w_t], axis=1),
             state_2)
         last_outputs.append(out_cell_2)
         last_wt = w_t

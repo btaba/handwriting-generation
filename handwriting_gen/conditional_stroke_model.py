@@ -147,7 +147,7 @@ def decode(model, text='hey I am baruch, nice to meet you',
         feed_dict[model.init_kappa] = last_kappa
 
         # setting last_wt matters if you feed it into the first LSTM layer
-        # in the network, but I had trouble getting that to work
+        # in the network
         feed_dict[model.init_wt] = last_wt
 
         last_state, last_wt, last_kappa, phi, (e, pi, *bv_params) = model.sess.run(
@@ -192,7 +192,7 @@ def _print_loss(model, data, epoch, stroke_length, char_length,
 
 @click.command()
 @click.argument('model-folder')
-@click.option('--num-epochs', default=500)
+@click.option('--num-epochs', default=70)
 @click.option('--learning-rate', default=1e-4)
 @click.option('--batch-size', default=32)
 @click.option('--stroke-length', default=150)
@@ -242,8 +242,8 @@ def train(model_folder, num_epochs, learning_rate, batch_size,
 
         _print_loss(model, train_data, epoch,
                     stroke_length, char_seq_length, batch_size, 'Train')
-        # _print_loss(model, val_data, epoch,
-        #             stroke_length, char_seq_length, batch_size, '    Val')
+        _print_loss(model, val_data, epoch,
+                    stroke_length, char_seq_length, batch_size, '    Val')
     model.save()
 
 
