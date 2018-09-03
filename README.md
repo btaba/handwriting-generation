@@ -1,6 +1,6 @@
 # handwriting-generation
 
-Based on [Generating Sequences With Recurrent Neural Networks](https://arxiv.org/pdf/1308.0850.pdf).
+Train a network to generate handwriting both unconditionally and conditionally based on text input. This code is based on [Generating Sequences With Recurrent Neural Networks](https://arxiv.org/pdf/1308.0850.pdf).
 
 
 ## How do I run it?
